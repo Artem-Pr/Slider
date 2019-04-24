@@ -1,0 +1,6 @@
+@media (min-width: 980px) {
+	.slider__item {	/* show 1 slide */
+		flex: 0 0 100%;
+		max-width: 100%;
+	}
+}
