@@ -4,7 +4,7 @@ var multiItemSlider = (function () {
 		var
 			_mainElement = document.querySelector(selector), // основный элемент блока
 			_sliderWrapper = _mainElement.querySelector('.slider__wrapper'), // обертка для .slider-item
-			//_sliderItemsDinamic = _sliderWrapper.children,
+			//_sliderItems = _sliderWrapper.children,
 			_sliderItems = _mainElement.querySelectorAll('.slider__item'), // элементы (.slider-item)
 			_sliderControls = _mainElement.querySelectorAll('.slider__control'), // элементы управления
 			_sliderControlLeft = _mainElement.querySelector('.slider__control_left'), // кнопка "LEFT"
@@ -18,14 +18,14 @@ var multiItemSlider = (function () {
 			_positionLeftItem = 0, // позиция левого активного элемента
 			_transform = 0, // значение трансформации .slider_wrapper
 			_step = _itemWidth / _wrapperWidth * 100, // величина шага (для трансформации)
-			_items = [], // массив элементов
-			_elemInWrap = _wrapperWidth / _itemWidth;
+			_items = []; // массив элементов
 
 
 		// наполнение массива _items
 		_sliderItems.forEach(function (item, index) {
-			_items.push({ item: item, position: index, transform: 0, lastDirection: 'none'});
+			_items.push({ item: item, position: index, transform: 0});
 		});
+		_items.lastDirection = 'none';
 
 		const _itemsLastIndex = _items.length - 1;
 
@@ -37,35 +37,24 @@ var multiItemSlider = (function () {
 		var _transformItem = function (direction) {
 			if (direction === 'right') {
 
-				if ((_positionLeftItem + _elemInWrap - 1) >= position.getMax) {
+				if ((_items.length <= 2) || (_items.lastDirection === 'right')) {
 
 					let returnWay = _items[0].transform + _items.length * 100;
 					console.log(`returnWay ${returnWay}`);
 
 					_items[0].transform = returnWay;
 					_items[0].item.style.transform = 'translateX(' + returnWay + '%)';
-					_items[0].lastDirection = 'right';
 					_items.push(_items.shift());
-
-					//_positionLeftItem++;
-					//_transform -= _step;
-					//_sliderWrapper.style.transform = 'translateX(' + _transform + '%)';
-
-					//return;
 				}
-				// if (!_sliderControlLeft.classList.contains('slider__control_show')) {
-				// 	_sliderControlLeft.classList.add('slider__control_show');
-				// }
-				// if (_sliderControlRight.classList.contains('slider__control_show') && (_positionLeftItem + _wrapperWidth / _itemWidth) >= position.getMax) {
-				// 	_sliderControlRight.classList.remove('slider__control_show');
-				// }
+				_items.lastDirection = 'right';
+
 				_positionLeftItem++;
 				_transform -= _step;
 			}
 			if (direction === 'left') {
 
-				if (((_positionLeftItem + _elemInWrap - 1) >= position.getMax) && (_items[_itemsLastIndex].lastDirection === 'left')) {
-					console.log(`1 lastDirection Last index ${_items[_itemsLastIndex].lastDirection}`);
+				if ((_items.length <= 2) || (_items.lastDirection === 'left')) {
+
 					let returnWay = _items[_itemsLastIndex].transform - _items.length * 100;
 					console.log(`returnWay ${returnWay}`);
 
@@ -73,18 +62,8 @@ var multiItemSlider = (function () {
 					_items[_itemsLastIndex].item.style.transform = 'translateX(' + returnWay + '%)';
 					_items.unshift(_items.pop());
 				}
-				_items[_itemsLastIndex].lastDirection = 'left';
+				_items.lastDirection = 'left';
 
-
-				if (_positionLeftItem <= position.getMin) {
-					return;
-				}
-				// if (!_sliderControlRight.classList.contains('slider__control_show')) {
-				// 	_sliderControlRight.classList.add('slider__control_show');
-				// }
-				// if (_sliderControlLeft.classList.contains('slider__control_show') && _positionLeftItem - 1 <= position.getMin) {
-				// 	_sliderControlLeft.classList.remove('slider__control_show');
-				// }
 				_positionLeftItem--;
 				_transform += _step;
 			}
@@ -92,6 +71,8 @@ var multiItemSlider = (function () {
 
 			console.log(`_transform ${_transform}`);
 			console.log(`lastDirection Last index ${_items[_itemsLastIndex].lastDirection}`);
+			console.log(`_items.lastDirection ${_items.lastDirection}`)
+			console.log(_items);
 		};
 
 		// обработчик события click для кнопок "назад" и "вперед"
