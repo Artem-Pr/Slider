@@ -3,25 +3,19 @@ var multiItemSlider = (function () {
 	return function (selector) {
 		var
 			_mainElement = document.querySelector(selector), // основный элемент блока
-			_sliderWrapper = _mainElement.querySelector('.slider__wrapper'), // обертка для .slider-item
-			//_sliderItems = _sliderWrapper.children,
 			_sliderItems = _mainElement.querySelectorAll('.slider__item'), // элементы (.slider-item)
 			_sliderControls = _mainElement.querySelectorAll('.slider__control'), // элементы управления
 			_sliderControlLeft = _mainElement.querySelector('.slider__control_left'), // кнопка "LEFT"
 			_sliderControlRight = _mainElement.querySelector('.slider__control_right'), // кнопка "RIGHT"
-			_wrapperWidth = parseFloat(getComputedStyle(_sliderWrapper).width), // ширина обёртки
-			_wrapperWidth2 = _sliderWrapper.clientWidth,
 
-			_itemWidth = parseFloat(getComputedStyle(_sliderItems[0]).width), // ширина одного элемента
-			_itemWidth2 = _sliderItems[0].clientWidth,
 
-			_positionLeftItem = 0, // позиция левого активного элемента
-			_transform = 0, // значение трансформации .slider_wrapper
-			_step = _itemWidth / _wrapperWidth * 100, // величина шага (для трансформации)
-			_items = [], // массив элементов
-			_countOfArr = 5;
+			_countOfArr = 1; // slider duplication count
 
-		function extendItemsArr (items, count) {
+
+			// create slider's duplicates
+			// items - '.slider__item' array
+			// count - slider duplication count
+		function sliderDup (items, count) {
 			let slider = items[0].parentElement.parentElement;
 			let wrapper = document.createElement('div');
 			wrapper.classList.add('slider__wrapper');
@@ -37,17 +31,36 @@ var multiItemSlider = (function () {
 			slider.appendChild(wrapper);
 		}
 
+		if (_countOfArr > 1) {
+			sliderDup(_sliderItems, _countOfArr);
+			_mainElement = document.querySelector(selector); // основный элемент блока
+			_sliderItems = _mainElement.querySelectorAll('.slider__item'); // элементы (.slider-item)
+		}
+
+		const _sliderWrapper = _mainElement.querySelector('.slider__wrapper'), // обертка для .slider-item
+			//_sliderItems = _sliderWrapper.children,
+			_wrapperWidth = parseFloat(getComputedStyle(_sliderWrapper).width), // ширина обёртки
+			_wrapperWidth2 = _sliderWrapper.clientWidth,
+
+			_itemWidth = parseFloat(getComputedStyle(_sliderItems[0]).width), // ширина одного элемента
+			_itemWidth2 = _sliderItems[0].clientWidth;
+
+		let _positionLeftItem = 0, // позиция левого активного элемента
+			_transform = 0, // значение трансформации .slider_wrapper
+			_step = _itemWidth / _wrapperWidth * 100, // величина шага (для трансформации)
+			_items = []; // массив элементов
+
+
+
+
 
 		// наполнение массива _items
-		_sliderItems.forEach(function (item, index) {
-			_items.push({ item: item, position: index, transform: 0});
+		_sliderItems.forEach(function (item) {
+			_items.push({ item: item, transform: 0});
 		});
 		_items.lastDirection = 'none';
 		let _itemsLastIndex = _items.length - 1;
 
-		extendItemsArr(_sliderItems, _countOfArr);
-
-		//extendOfItems(_items, _sliderItems);
 
 		var _transformItem = function (direction) {
 			if (direction === 'right') {
@@ -108,14 +121,14 @@ var multiItemSlider = (function () {
 		// инициализация
 		_setUpListeners();
 
-		return {
-			right: function () { // метод right
-				_transformItem('right');
-			},
-			left: function () { // метод left
-				_transformItem('left');
-			}
-		}
+		// return {
+		// 	right: function () { // метод right
+		// 		_transformItem('right');
+		// 	},
+		// 	left: function () { // метод left
+		// 		_transformItem('left');
+		// 	}
+		// }
 
 	}
 }());
