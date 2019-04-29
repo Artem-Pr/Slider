@@ -18,8 +18,8 @@ var multiItemSlider = (function () {
 
 		let _countOfArr = 3, // slider duplication count
 			_items = [], // массив элементов
-			_step = _itemWidth / _wrapperWidth * 100, // величина шага (для трансформации)
-			ratioToMoveElems = _sliderItems.length * _countOfArr * _itemWidth / _wrapperWidth,
+			_step = Math.round(_itemWidth / _wrapperWidth * 100), // величина шага (для трансформации)
+			ratioToMoveElems = Math.round(_sliderItems.length * _countOfArr * _itemWidth / _wrapperWidth),
 			elemInWrap = Math.round(_wrapperWidth / _itemWidth),
 			_transform = 0; // значение трансформации .slider_wrapper
 
@@ -29,7 +29,6 @@ var multiItemSlider = (function () {
 		// count - slider duplication count
 		function sliderDup(sliderItems, count) {
 			let itemsForMove, // number of items to move left
-				wrapForMove, // number of wrappers lengths to move left
 				slider = sliderItems[0].parentElement.parentElement,
 				wrapper = document.createElement('div');
 
@@ -44,14 +43,6 @@ var multiItemSlider = (function () {
 						wrapper.appendChild(newItem);
 					}
 				}
-				sliderItems[0].parentElement.remove();
-				slider.appendChild(wrapper);
-				wrapForMove = Math.floor(Math.floor(_items.length / _countOfArr) / elemInWrap);
-				_sliderWrapper = _mainElement.querySelector('.slider__wrapper'); // обертка для .slider-item
-				_transform = -wrapForMove * 100;
-				_sliderWrapper.style.transform = 'translateX(' + _transform + '%)';
-				//_sliderWrapper.style.transform = 'translateX(' + -_itemWidth / _step * 100 + '%)';
-
 
 			} else { // create arr without duplicates
 				for (let i = 0; i < sliderItems.length; i++) {
@@ -65,18 +56,26 @@ var multiItemSlider = (function () {
 				for (let i = 0; i < _items.length; i++) {
 					wrapper.appendChild(_items[i].item);
 				}
-				sliderItems[0].parentElement.remove();
-				slider.appendChild(wrapper);
 			}
+			sliderItems[0].parentElement.remove();
+			slider.appendChild(wrapper);
 		}
 
 		if (ratioToMoveElems >= 3) {
 			sliderDup(_sliderItems, _countOfArr);
+			// !!!
 			_mainElement = document.querySelector(selector); // основный элемент блока
+
 			_sliderItems = _mainElement.querySelectorAll('.slider__item'); // элементы (.slider-item)
 		}
-
+		//!!!
 		_sliderWrapper = _mainElement.querySelector('.slider__wrapper'); // обертка для .slider-item
+
+
+			let wrapForMove = Math.floor(Math.floor(_items.length / _countOfArr) / elemInWrap); // number of wrappers lengths to move left
+			_transform = -wrapForMove * 100;
+			_sliderWrapper.style.transform = 'translateX(' + _transform + '%)';
+
 
 			_wrapperWidth = parseFloat(getComputedStyle(_sliderWrapper).width); // ширина обёртки
 			// _wrapperWidth2 = _sliderWrapper.clientWidth;
@@ -138,9 +137,9 @@ var multiItemSlider = (function () {
 		};
 
 		// обработчик события click для кнопок "назад" и "вперед"
-		var _controlClick = function (e) {
+		var _controlClick = function (evt) {
 			var direction = this.classList.contains('slider__control_right') ? 'right' : 'left';
-			e.preventDefault();
+			evt.preventDefault();
 			_transformItem(direction);
 		};
 
