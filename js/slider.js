@@ -2,7 +2,7 @@
 var multiItemSlider = (function () {
 	return function (selector) {
 		var
-			_mainElement = document.querySelector(selector), // основный элемент блока
+			_mainElement = document.querySelector(selector), // основный элемент блока ('.slider')
 			_sliderItems = _mainElement.querySelectorAll('.slider__item'), // элементы (.slider-item)
 			//_sliderItems = _sliderWrapper.children,
 			_sliderControls = _mainElement.querySelectorAll('.slider__control'), // элементы управления
@@ -19,7 +19,7 @@ var multiItemSlider = (function () {
 		let _countOfArr = 3, // slider duplication count
 			_items = [], // массив элементов
 			_step = Math.round(_itemWidth / _wrapperWidth * 100), // величина шага (для трансформации)
-			ratioToMoveElems = Math.round(_sliderItems.length * _countOfArr * _itemWidth / _wrapperWidth),
+			ratioToMoveElems = Math.round(_sliderItems.length * _countOfArr - _wrapperWidth / _itemWidth), // number of items outside the wrapper
 			elemInWrap = Math.round(_wrapperWidth / _itemWidth),
 			_transform = 0; // значение трансформации .slider_wrapper
 
@@ -38,7 +38,6 @@ var multiItemSlider = (function () {
 				for (let i = 0; i < count; i++) {
 					for (let j = 0; j < sliderItems.length; j++) {
 						let newItem = sliderItems[j].cloneNode(true);
-						console.log(newItem);
 						_items.push({item: newItem, index: j, transform: 0});
 						wrapper.appendChild(newItem);
 					}
@@ -47,7 +46,6 @@ var multiItemSlider = (function () {
 			} else { // create arr without duplicates
 				for (let i = 0; i < sliderItems.length; i++) {
 					let newItem = sliderItems[i].cloneNode(true);
-					console.log(newItem);
 					_items.push({item: newItem, index: i, transform: 0});
 				}
 				itemsForMove = Math.floor(_items.length / 2);
@@ -61,14 +59,85 @@ var multiItemSlider = (function () {
 			slider.appendChild(wrapper);
 		}
 
-		if (ratioToMoveElems >= 3) {
-			sliderDup(_sliderItems, _countOfArr);
-			// !!!
-			_mainElement = document.querySelector(selector); // основный элемент блока
 
-			_sliderItems = _mainElement.querySelectorAll('.slider__item'); // элементы (.slider-item)
+		// create slider's duplicates and put it in _items array
+		// items - '.slider__item' array
+		// count - slider duplication count
+		function createSlideDupArr(items, count) {
+			let newItem, // new items for clone '.slider__item' elements
+				newArr = []; // array for filling with new elements
+
+			for (let i = 0; i < count; i++) {
+				for (let j = 0; j < items.length; j++) {
+					newItem = items[j].cloneNode(true);
+					newArr.push({item: newItem, index: j, transform: 0});
+				}
+			}
+			return newArr;
 		}
-		//!!!
+
+
+		// filling the array with slide elements
+		// items - '.slider__item' array
+		function fillSlideArr(items) {
+			let newItem, // new items for clone '.slider__item' elements
+				newArr = []; // array for filling with new elements
+
+			for (let i = 0; i < items.length; i++) {
+				newItem = items[i].cloneNode(true);
+				newArr.push({item: newItem, index: i, transform: 0});
+			}
+			return newArr;
+		}
+
+
+		// Create and return new array of slider elements
+		// items - '.slider__item' array
+		// count - slider duplication count
+		function createItemsArr(items, count) {
+				if (count > 1) return createSlideDupArr(items, count); // if we need more than 1 copy of slides
+				return fillSlideArr(items); // if we need only 1 copy of slides
+		}
+
+
+		// Сut the second part of the current array and place it at the beginning of the array (current array is broken!)
+		// arr - the current array
+		function arrPartitioning (arr) {
+			let itemsForMove = Math.floor(_items.length / 2); // number of items to move left
+			let newArr = arr.splice(-itemsForMove, itemsForMove);
+			return  newArr.concat(arr);
+		}
+
+
+		// Remove current slider and create new slides according to the "itemsArr"
+		// slider - the main block ('.slider')
+		// curWrap - current wrapper to remove
+		// itemsArr - array with new items for wrapper
+		function createNewSlides (slider, curWrap, itemsArr) {
+			let	newWrap = document.createElement('div');
+
+			newWrap.classList.add('slider__wrapper');
+			for (let i = 0; i < itemsArr.length; i++) {
+				newWrap.appendChild(itemsArr[i].item);
+			}
+			curWrap.remove();
+			slider.appendChild(newWrap);
+		}
+
+
+		_items = createItemsArr(_sliderItems, _countOfArr);
+
+		if (ratioToMoveElems > 1) {
+			_items = arrPartitioning(_items);
+		}
+
+		createNewSlides(_mainElement, _sliderWrapper, _items);
+
+
+
+
+
+		_mainElement = document.querySelector(selector); // основный элемент блока
 		_sliderWrapper = _mainElement.querySelector('.slider__wrapper'); // обертка для .slider-item
 
 
