@@ -1,24 +1,35 @@
 'use strict';
-var multiItemSlider = (function () {
-	return function (selector) {
+let multiItemSlider = (function () {
+	return function (selector, config) {
 		let _mainElement = document.querySelector(selector), // the main block ('.slider')
 			_sliderItems = _mainElement.querySelectorAll('.slider__item'), // elements (.slider-item)
-			//_sliderItems = _sliderWrapper.children,
 			_sliderControls = _mainElement.querySelectorAll('.slider__control'), // control buttons
-		 	_sliderWrapper = _mainElement.querySelector('.slider__wrapper'), // wrapper for .slider-item
+			_sliderWrapper = _mainElement.querySelector('.slider__wrapper'), // wrapper for .slider-item
 			_wrapperWidth = parseFloat(getComputedStyle(_sliderWrapper).width), // wrapper width
-			//_wrapperWidth2 = _sliderWrapper.clientWidth,
 			_itemWidth = parseFloat(getComputedStyle(_sliderItems[0]).width), // item width
 
 			_items = [], // array for slider items
-			_transform = 0; // value of transform .slider_wrapper
+			_transform = 0, // value of transform .slider_wrapper
+			_timerId = 0,
+			_config = {
+				isCycling: false, // automatic slider change
+				direction: 'right', // slider change direction
+				interval: 1000, // automatic slider change interval
+				pause: true, // set a pause when hovering the mouse over the slider
+				slidesCount: 1 // slider duplication count
+			};
 
-		const _countOfArr = 2, // slider duplication count
-			_precision = 1000,
+		const _precision = 1000,
 			_step = Math.round(_itemWidth / _wrapperWidth * 100 * _precision) / _precision, // step size for transform
 			_elemsInWrap = Math.round(_wrapperWidth / _itemWidth * _precision) / _precision, // number of items contained in wrapper
-			_ratioToMoveElems = Math.round((_sliderItems.length * _countOfArr - _elemsInWrap) * _precision) / _precision; // number of items outside the wrapper
+			_ratioToMoveElems = Math.round((_sliderItems.length * _config.slidesCount - _elemsInWrap) * _precision) / _precision; // number of items outside the wrapper
 
+
+		for (let key in config) {
+			if (key in _config) {
+				_config[key] = config[key];
+			}
+		}
 
 
 		// create slider's duplicates and put it in _items array
@@ -57,25 +68,25 @@ var multiItemSlider = (function () {
 		// items - '.slider__item' array
 		// count - slider duplication count
 		function createItemsArr(items, count) {
-				if (count > 1) return createSlideDupArr(items, count); // if we need more than 1 copy of slides
-				return fillSlideArr(items); // if we need only 1 copy of slides
+			if (count > 1) return createSlideDupArr(items, count); // if we need more than 1 copy of slides
+			return fillSlideArr(items); // if we need only 1 copy of slides
 		}
 
 
 		// return number of items to move left
 		// arr - the current array
 		// elemsInWrap - the number of items are contained in wrapper
-		function numberOfLeftItems (arr, elemsInWrap) {
-			return  Math.floor((arr.length - elemsInWrap) / 2);
+		function numberOfLeftItems(arr, elemsInWrap) {
+			return Math.floor((arr.length - elemsInWrap) / 2);
 		}
 
 		// Сut the second part of the current array and place it at the beginning of the array (current array is broken!)
 		// arr - the current array
 		// elemsInWrap - the number of items are contained in wrapper
-		function arrPartitioning (arr, elemsInWrap) {
+		function arrPartitioning(arr, elemsInWrap) {
 			let itemsForMove = numberOfLeftItems(arr, elemsInWrap);
 			let newArr = arr.splice(-itemsForMove, itemsForMove);
-			return  newArr.concat(arr);
+			return newArr.concat(arr);
 		}
 
 
@@ -83,8 +94,8 @@ var multiItemSlider = (function () {
 		// slider - the main block ('.slider')
 		// curWrap - current wrapper to remove
 		// itemsArr - array with new items for wrapper
-		function createNewSlides (slider, curWrap, itemsArr) {
-			let	newWrap = document.createElement('div');
+		function createNewSlides(slider, curWrap, itemsArr) {
+			let newWrap = document.createElement('div');
 
 			newWrap.classList.add('slider__wrapper');
 			for (let i = 0; i < itemsArr.length; i++) {
@@ -111,17 +122,18 @@ var multiItemSlider = (function () {
 		}
 
 
-		_items = createItemsArr(_sliderItems, _countOfArr);
+		_items = createItemsArr(_sliderItems, _config.slidesCount);
 		if (_ratioToMoveElems > 1) {  // if we need to move some items from the end of array, to the start of array
 			_items = arrPartitioning(_items, _elemsInWrap);
 			createDOMSlider();
 			moveTheFocus();
-		} else if (_countOfArr > 1) {  // if we need only to create some clones of items
+		} else if (_config.slidesCount > 1) {  // if we need only to create some clones of items
 			createDOMSlider();
 		}
 
 		let _positionLeftItem = 0; // position of the left active element
 		_items.lastDirection = 'none';
+
 
 
 		let _transformItem = function (direction) {
@@ -155,8 +167,17 @@ var multiItemSlider = (function () {
 		};
 
 
+		// automatic slider change
+		let _cycle = function (isCycling, direction, interval) {
+			if (isCycling) {
+				_timerId = setInterval(() => {
+					_transformItem(direction);
+				}, interval);
+			}
+		};
+
 		let _controlClick = function (evt) {
-			var direction = this.classList.contains('slider__control_right') ? 'right' : 'left';
+			let direction = this.classList.contains('slider__control_right') ? 'right' : 'left';
 			evt.preventDefault();
 			_transformItem(direction);
 		};
@@ -165,10 +186,22 @@ var multiItemSlider = (function () {
 			_sliderControls.forEach(function (item) {
 				item.addEventListener('click', _controlClick);
 			});
+			_mainElement.addEventListener('mouseenter', () => {
+				if (_config.pause) clearInterval(_timerId);
+			});
+			_mainElement.addEventListener('mouseleave', () => {
+				if (_config.pause) {
+					clearInterval(_timerId);
+					_cycle(_config.isCycling, _config.direction, _config.interval);
+				}
+			})
 		};
 
 		_setUpListeners();
+		_cycle(_config.isCycling, _config.direction, _config.interval);
 	}
 }());
 
-let slider1 = multiItemSlider('.slider');
+let slider = multiItemSlider('.slider', {
+	isCycling: true,
+});
