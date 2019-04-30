@@ -1,18 +1,19 @@
-/* ОСНОВНЫЕ СТИЛИ */
-.slider {
+/* Main stiles */
+.slider,
+.slider2 {
 	position: relative;
 	overflow: hidden;
 }
 .slider__wrapper {
 	display: flex;
-	transition: transform .6s ease; /* 0.6 длительность смены слайда в секундах */
-	border-bottom: 2px solid rgba(0, 0, 0, 0.99);
+	transition: transform .6s ease; /* 0.6 slide change duration  */
 }
 .slider__item {
-	flex: 0 0 25%; /* определяет количество активных слайдов (в данном случае 2 */
-	max-width: 100%; /* определяет количество активных слайдов (в данном случае 2 */
+	flex: 0 0 20%; /* number of active slides */
+	max-width: 100%;
 }
-/* СТИЛИ ДЛЯ КНОПОК "НАЗАД" И "ВПЕРЁД" */
+
+/* Styles for button */
 .slider__control {
 	position: absolute;
 	display: none;
@@ -21,10 +22,10 @@
 	align-items: center;
 	justify-content: center;
 	text-align: center;
-	width: 40px; /* ширина кнопки */
-	height: 50px; /* высота кнопки */
-	opacity: .5; /* прозрачность */
-	background: #000; /* цвет фона */
+	width: 40px; /* button width */
+	height: 50px; /* button height */
+	opacity: .5; /* button opacity */
+	background: #000; /* button bgc */
 	z-index: 1000;
 }
 .slider__control_show {
@@ -34,7 +35,7 @@
 .slider__control:focus {
 	text-decoration: none;
 	outline: 0;
-	opacity: .9; /* прозрачность */
+	opacity: .9;
 }
 .slider__control_left {
 	left: 0;
@@ -45,8 +46,8 @@
 .slider__control::before {
 	content: '';
 	display: inline-block;
-	width: 20px; /* ширина иконки (стрелочки) */
-	height: 20px; /* высота иконки (стрелочки) */
+	width: 20px; /* arrow icon width */
+	height: 20px; /* arrow icon height */
 	background: transparent no-repeat center center;
 	background-size: 100% 100%;
 }
@@ -56,6 +57,7 @@
 .slider__control_right::before {
 	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
 }
+
 
 
 /* Styles for slider content */
