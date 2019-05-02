@@ -15,7 +15,7 @@ let multiItemSlider = (function () {
 			_config = {
 				isCycling: false, // automatic slider change
 				direction: 'right', // slider change direction
-				interval: 1000, // automatic slider change interval
+				interval: 5000, // automatic slider change interval
 				pause: true, // set a pause when hovering the mouse over the slider
 				slidesCount: 1, // slider duplication count
 				dots: false // hide miniSlider__dots
@@ -34,8 +34,8 @@ let multiItemSlider = (function () {
 
 
 		// put elements in _items array
-		function addItemArr(itemArr, item, i) {
-			if (i === 0) itemArr.push({item: item, index: i, transform: 0, active: true});
+		function addItemArr(itemArr, item, i, j) {
+			if ((i === 0) && (j === 0)) itemArr.push({item: item, index: i, transform: 0, active: true});
 			else itemArr.push({item: item, index: i, transform: 0, active: false});
 			return itemArr;
 		}
@@ -50,7 +50,7 @@ let multiItemSlider = (function () {
 			for (let i = 0; i < count; i++) {
 				for (let j = 0; j < items.length; j++) {
 					newItem = items[j].cloneNode(true);
-					newArr.push({item: newItem, index: j, transform: 0, active: false});
+					newArr = addItemArr(newArr, newItem, j, i);
 				}
 			}
 			return newArr;
@@ -61,12 +61,13 @@ let multiItemSlider = (function () {
 		// items - '.miniSlider__item' array
 		function fillSlideArr(items) {
 			let newItem, // new items for clone '.miniSlider__item' elements
-				newArr = []; // array for filling with new elements
+				newArr = [], // array for filling with new elements
+				j = 0; // for function addItemArr
 
 			for (let i = 0; i < items.length; i++) {
 				if (_ratioToMoveElems > 1) newItem = items[i].cloneNode(true); // if we will change the wrapper
 				else newItem = items[i];  // if we won't change the wrapper
-				newArr = addItemArr(newArr, newItem, i);
+				newArr = addItemArr(newArr, newItem, i, j);
 			}
 			return newArr;
 		}
@@ -158,7 +159,6 @@ let multiItemSlider = (function () {
 		}
 
 
-
 		function paintDot(direction) {
 			if (direction === 'right') {
 				for (let i = 0; i < _items.length; i++) {
@@ -238,14 +238,33 @@ let multiItemSlider = (function () {
 				_transform += _step;
 			}
 
-			paintDot(direction);
+			if (_config.dots) paintDot(direction);
 			_sliderWrapper.style.transform = 'translateX(' + _transform + '%)';
 		};
 
 
 		let _dotClick = function (evt) {
-			evt.preventDefault();
+			let active = 0,
+				current = 0,
+				direction;
 
+			evt.preventDefault();
+			this.classList.add('current');
+			_dots.forEach((item, i) => {
+				if (_dots[i].classList.contains('active')) active = i;
+				if (_dots[i].classList.contains('current')) current = i;
+			});
+			this.classList.remove('current');
+
+			if (active < current) direction = 'right';
+			else if (active > current) direction = 'left';
+			else return;
+
+			while (active !== current) {
+				_transformItem(direction);
+				if (direction === 'right') active++;
+				else  active--;
+			}
 		};
 
 
@@ -290,5 +309,5 @@ let multiItemSlider = (function () {
 }());
 
 let miniSlider = multiItemSlider('.miniSlider', {
-	dots: true
+	isCycling: true
 });
