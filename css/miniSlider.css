@@ -26,6 +26,7 @@
 	opacity: .5; /* button opacity */
 	background: #000; /* button bgc */
 	z-index: 1000;
+	border: none;
 }
 .miniSlider__control_show {
 	display: flex;
