@@ -2,9 +2,10 @@
 let multiItemSlider = (function () {
 	return function (selector, config) {
 		let _mainElement = document.querySelector(selector), // the main block ('.slider')
-			_sliderItems = _mainElement.querySelectorAll('.miniSlider__item'), // elements (.slider-item)
-			_sliderControls = _mainElement.querySelectorAll('.miniSlider__control'), // control buttons
-			_sliderWrapper = _mainElement.querySelector('.miniSlider__wrapper'), // wrapper for .slider-item
+			_sliderStage = _mainElement.querySelector('.miniSlider__stage'),
+			_sliderItems = _mainElement.querySelectorAll('.miniSlider__item'),
+			_sliderControls = _mainElement.querySelectorAll('.miniSlider__control'),
+			_sliderWrapper = _mainElement.querySelector('.miniSlider__wrapper'),
 			_wrapperWidth = parseFloat(getComputedStyle(_sliderWrapper).width), // wrapper width
 			_itemWidth = parseFloat(getComputedStyle(_sliderItems[0]).width), // item width
 
@@ -115,7 +116,7 @@ let multiItemSlider = (function () {
 		// create new slides and initialize slider again
 		function createDOMSlider() {
 			_sliderWrapper.remove();
-			_mainElement.appendChild(createSliderWrap(_items));
+			_sliderStage.appendChild(createSliderWrap(_items));
 			if (_config.dots) _mainElement.appendChild(createDotsObj(_dots));
 
 			_mainElement = document.querySelector(selector); // the main block ('.miniSlider')
