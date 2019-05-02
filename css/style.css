@@ -3,6 +3,13 @@ body {
 	color: #fff;
 }
 
+/* Styles for slider content */
+.miniSlider__item>div {
+	line-height: 250px;
+	font-size: 100px;
+	text-align: center;
+}
+
 .container {
 	/*margin: 0 30%;*/
 	/*max-width: 70%;*/

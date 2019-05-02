@@ -2,14 +2,14 @@
 let multiItemSlider = (function () {
 	return function (selector, config) {
 		let _mainElement = document.querySelector(selector), // the main block ('.slider')
-			_sliderItems = _mainElement.querySelectorAll('.slider__item'), // elements (.slider-item)
-			_sliderControls = _mainElement.querySelectorAll('.slider__control'), // control buttons
-			_sliderWrapper = _mainElement.querySelector('.slider__wrapper'), // wrapper for .slider-item
+			_sliderItems = _mainElement.querySelectorAll('.miniSlider__item'), // elements (.slider-item)
+			_sliderControls = _mainElement.querySelectorAll('.miniSlider__control'), // control buttons
+			_sliderWrapper = _mainElement.querySelector('.miniSlider__wrapper'), // wrapper for .slider-item
 			_wrapperWidth = parseFloat(getComputedStyle(_sliderWrapper).width), // wrapper width
 			_itemWidth = parseFloat(getComputedStyle(_sliderItems[0]).width), // item width
 
 			_items = [], // array for slider items
-			_transform = 0, // value of transform .slider_wrapper
+			_transform = 0, // value of transform .miniSlider__wrapper
 			_timerId = 0,
 			_config = {
 				isCycling: false, // automatic slider change
@@ -33,10 +33,10 @@ let multiItemSlider = (function () {
 
 
 		// create slider's duplicates and put it in _items array
-		// items - '.slider__item' array
+		// items - '.miniSlider__item' array
 		// count - slider duplication count
 		function createSlideDupArr(items, count) {
-			let newItem, // new items for clone '.slider__item' elements
+			let newItem, // new items for clone '.miniSlider__item' elements
 				newArr = []; // array for filling with new elements
 
 			for (let i = 0; i < count; i++) {
@@ -50,9 +50,9 @@ let multiItemSlider = (function () {
 
 
 		// filling the array with slide elements
-		// items - '.slider__item' array
+		// items - '.miniSlider__item' array
 		function fillSlideArr(items) {
-			let newItem, // new items for clone '.slider__item' elements
+			let newItem, // new items for clone '.miniSlider__item' elements
 				newArr = []; // array for filling with new elements
 
 			for (let i = 0; i < items.length; i++) {
@@ -65,7 +65,7 @@ let multiItemSlider = (function () {
 
 
 		// Create and return new array of slider elements
-		// items - '.slider__item' array
+		// items - '.miniSlider__item' array
 		// count - slider duplication count
 		function createItemsArr(items, count) {
 			if (count > 1) return createSlideDupArr(items, count); // if we need more than 1 copy of slides
@@ -91,13 +91,13 @@ let multiItemSlider = (function () {
 
 
 		// Remove current slider and create new slides according to the "itemsArr"
-		// slider - the main block ('.slider')
+		// slider - the main block ('.miniSlider')
 		// curWrap - current wrapper to remove
 		// itemsArr - array with new items for wrapper
 		function createNewSlides(slider, curWrap, itemsArr) {
 			let newWrap = document.createElement('div');
 
-			newWrap.classList.add('slider__wrapper');
+			newWrap.classList.add('miniSlider__wrapper');
 			for (let i = 0; i < itemsArr.length; i++) {
 				newWrap.appendChild(itemsArr[i].item);
 			}
@@ -109,8 +109,8 @@ let multiItemSlider = (function () {
 		// create new slides and initialize slider again
 		function createDOMSlider() {
 			createNewSlides(_mainElement, _sliderWrapper, _items);
-			_mainElement = document.querySelector(selector); // the main block ('.slider')
-			_sliderWrapper = _mainElement.querySelector('.slider__wrapper'); // wrapper for .slider-item
+			_mainElement = document.querySelector(selector); // the main block ('.miniSlider')
+			_sliderWrapper = _mainElement.querySelector('.miniSlider__wrapper'); // wrapper for .miniSlider-item
 		}
 
 
@@ -177,7 +177,7 @@ let multiItemSlider = (function () {
 		};
 
 		let _controlClick = function (evt) {
-			let direction = this.classList.contains('slider__control_right') ? 'right' : 'left';
+			let direction = this.classList.contains('miniSlider__control_right') ? 'right' : 'left';
 			evt.preventDefault();
 			_transformItem(direction);
 		};
@@ -202,6 +202,6 @@ let multiItemSlider = (function () {
 	}
 }());
 
-let slider = multiItemSlider('.slider', {
+let miniSlider = multiItemSlider('.miniSlider', {
 	isCycling: true,
 });
