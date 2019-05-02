@@ -9,6 +9,7 @@ let multiItemSlider = (function () {
 			_itemWidth = parseFloat(getComputedStyle(_sliderItems[0]).width), // item width
 
 			_items = [], // array for slider items
+			_dots = [], // array for slider dots
 			_transform = 0, // value of transform .miniSlider__wrapper
 			_timerId = 0,
 			_config = {
@@ -16,14 +17,9 @@ let multiItemSlider = (function () {
 				direction: 'right', // slider change direction
 				interval: 1000, // automatic slider change interval
 				pause: true, // set a pause when hovering the mouse over the slider
-				slidesCount: 1 // slider duplication count
+				slidesCount: 1, // slider duplication count
+				dots: false // hide miniSlider__dots
 			};
-
-		const _precision = 1000,
-			_step = Math.round(_itemWidth / _wrapperWidth * 100 * _precision) / _precision, // step size for transform
-			_elemsInWrap = Math.round(_wrapperWidth / _itemWidth * _precision) / _precision, // number of items contained in wrapper
-			_ratioToMoveElems = Math.round((_sliderItems.length * _config.slidesCount - _elemsInWrap) * _precision) / _precision; // number of items outside the wrapper
-
 
 		for (let key in config) {
 			if (key in _config) {
@@ -31,6 +27,18 @@ let multiItemSlider = (function () {
 			}
 		}
 
+		const _precision = 1,
+			_step = Math.round(_itemWidth / _wrapperWidth * 100 * _precision) / _precision, // step size for transform
+			_elemsInWrap = Math.round(_wrapperWidth / _itemWidth * _precision) / _precision, // number of items contained in wrapper
+			_ratioToMoveElems = Math.round((_sliderItems.length * _config.slidesCount - _elemsInWrap) * _precision) / _precision; // number of items outside the wrapper
+
+
+		// put elements in _items array
+		function addItemArr(itemArr, item, i) {
+			if (i === 0) itemArr.push({item: item, index: i, transform: 0, active: true});
+			else itemArr.push({item: item, index: i, transform: 0, active: false});
+			return itemArr;
+		}
 
 		// create slider's duplicates and put it in _items array
 		// items - '.miniSlider__item' array
@@ -42,7 +50,7 @@ let multiItemSlider = (function () {
 			for (let i = 0; i < count; i++) {
 				for (let j = 0; j < items.length; j++) {
 					newItem = items[j].cloneNode(true);
-					newArr.push({item: newItem, index: j, transform: 0});
+					newArr.push({item: newItem, index: j, transform: 0, active: false});
 				}
 			}
 			return newArr;
@@ -58,7 +66,7 @@ let multiItemSlider = (function () {
 			for (let i = 0; i < items.length; i++) {
 				if (_ratioToMoveElems > 1) newItem = items[i].cloneNode(true); // if we will change the wrapper
 				else newItem = items[i];  // if we won't change the wrapper
-				newArr.push({item: newItem, index: i, transform: 0});
+				newArr = addItemArr(newArr, newItem, i);
 			}
 			return newArr;
 		}
@@ -91,24 +99,24 @@ let multiItemSlider = (function () {
 
 
 		// Remove current slider and create new slides according to the "itemsArr"
-		// slider - the main block ('.miniSlider')
-		// curWrap - current wrapper to remove
 		// itemsArr - array with new items for wrapper
-		function createNewSlides(slider, curWrap, itemsArr) {
+		function createSliderWrap(itemsArr) {
 			let newWrap = document.createElement('div');
 
 			newWrap.classList.add('miniSlider__wrapper');
 			for (let i = 0; i < itemsArr.length; i++) {
 				newWrap.appendChild(itemsArr[i].item);
 			}
-			curWrap.remove();
-			slider.appendChild(newWrap);
+			return newWrap;
 		}
 
 
 		// create new slides and initialize slider again
 		function createDOMSlider() {
-			createNewSlides(_mainElement, _sliderWrapper, _items);
+			_sliderWrapper.remove();
+			_mainElement.appendChild(createSliderWrap(_items));
+			if (_config.dots) _mainElement.appendChild(createDotsObj(_dots));
+
 			_mainElement = document.querySelector(selector); // the main block ('.miniSlider')
 			_sliderWrapper = _mainElement.querySelector('.miniSlider__wrapper'); // wrapper for .miniSlider-item
 		}
@@ -122,18 +130,85 @@ let multiItemSlider = (function () {
 		}
 
 
+		// create an array with elements of dots
+		function createArrOfDot(sliderItems, dotsTrue) {
+			if (dotsTrue) {
+				let dots = []; // array for slider dots
+
+				sliderItems.forEach((item, i) => {
+					let newDot = document.createElement('button'),
+						dotSpan = document.createElement('span');
+					newDot.classList.add('miniSlider__dot');
+					if (i === 0) newDot.classList.add('active');
+					newDot.appendChild(dotSpan);
+					dots[i] = newDot;
+				});
+				return dots;
+			}
+		}
+
+
+		function createDotsObj(dotsArr) {
+			let dotsObj = document.createElement('div');
+			dotsObj.classList.add('miniSlider__dots');
+			dotsArr.forEach((item) => {
+				dotsObj.appendChild(item);
+			});
+			return dotsObj;
+		}
+
+
+
+		function paintDot(direction) {
+			if (direction === 'right') {
+				for (let i = 0; i < _items.length; i++) {
+					if (_items[i].active) {
+						_items[i].active = false;
+						_dots[_items[i].index].classList.remove('active');
+						if (i === _items.length - 1) {
+							_items[0].active = true;
+							_dots[_items[0].index].classList.add('active');
+						} else {
+							_items[i + 1].active = true;
+							_dots[_items[i + 1].index].classList.add('active');
+						}
+						break;
+					}
+				}
+			} else {
+				for (let i = 0; i < _items.length; i++) {
+					if (_items[i].active) {
+						_items[i].active = false;
+						_dots[_items[i].index].classList.remove('active');
+						if (i === 0) {
+							_items[_items.length - 1].active = true;
+							_dots[_items[_items.length - 1].index].classList.add('active');
+						} else {
+							_items[i - 1].active = true;
+							_dots[_items[i - 1].index].classList.add('active');
+						}
+						break;
+					}
+				}
+			}
+		}
+
+
 		_items = createItemsArr(_sliderItems, _config.slidesCount);
+		_dots = createArrOfDot(_sliderItems, _config.dots);
+
 		if (_ratioToMoveElems > 1) {  // if we need to move some items from the end of array, to the start of array
 			_items = arrPartitioning(_items, _elemsInWrap);
 			createDOMSlider();
 			moveTheFocus();
 		} else if (_config.slidesCount > 1) {  // if we need only to create some clones of items
 			createDOMSlider();
+		} else if (_config.dots) {
+			_mainElement.appendChild(createDotsObj(_dots));
 		}
 
 		let _positionLeftItem = 0; // position of the left active element
 		_items.lastDirection = 'none';
-
 
 
 		let _transformItem = function (direction) {
@@ -163,7 +238,14 @@ let multiItemSlider = (function () {
 				_transform += _step;
 			}
 
+			paintDot(direction);
 			_sliderWrapper.style.transform = 'translateX(' + _transform + '%)';
+		};
+
+
+		let _dotClick = function (evt) {
+			evt.preventDefault();
+
 		};
 
 
@@ -194,7 +276,12 @@ let multiItemSlider = (function () {
 					clearInterval(_timerId);
 					_cycle(_config.isCycling, _config.direction, _config.interval);
 				}
-			})
+			});
+			if (_config.dots) {
+				_dots.forEach((item) => {
+					item.addEventListener('click', _dotClick);
+				})
+			}
 		};
 
 		_setUpListeners();
@@ -203,5 +290,5 @@ let multiItemSlider = (function () {
 }());
 
 let miniSlider = multiItemSlider('.miniSlider', {
-	isCycling: true,
+	dots: true
 });

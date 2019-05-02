@@ -8,7 +8,7 @@
 	transition: transform .6s ease; /* 0.6 slide change duration  */
 }
 .miniSlider__item {
-	flex: 0 0 20%; /* number of active slides */
+	flex: 0 0 100%; /* number of active slides */
 	max-width: 100%;
 }
 
@@ -55,4 +55,29 @@
 }
 .miniSlider__control_right::before {
 	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+}
+
+/* Dots */
+.miniSlider__dots {
+	display: block;
+	position: absolute;
+	text-align: center;
+	left: 0;
+	right: 0;
+	bottom: 20px;
+	z-index: 1000;
+}
+.miniSlider__dot {
+	width: 15px;
+	height: 15px;
+	margin: 0 3px;
+	
+	border: 1px solid #000;
+	background-color: #fff;
+}
+.miniSlider__dot.active {
+	background-color: #000;
+}
+.miniSlider__dot:focus {
+	outline: none;
 }
