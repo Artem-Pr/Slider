@@ -19,7 +19,8 @@ let multiItemSlider = (function () {
 				interval: 5000, // automatic slider change interval
 				pause: true, // set a pause when hovering the mouse over the slider
 				slidesCount: 1, // slider duplication count
-				dots: false // hide miniSlider__dots
+				dots: false, // hide miniSlider__dots
+				dotsExist: false //the points are already in html
 			};
 
 		for (let key in config) {
@@ -117,7 +118,7 @@ let multiItemSlider = (function () {
 		function createDOMSlider() {
 			_sliderWrapper.remove();
 			_sliderStage.appendChild(createSliderWrap(_items));
-			if (_config.dots) _mainElement.appendChild(createDotsObj(_dots));
+			if (_config.dots && (_config.dotsExist === false)) _mainElement.appendChild(createDotsObj(_dots));
 
 			_mainElement = document.querySelector(selector); // the main block ('.miniSlider')
 			_sliderWrapper = _mainElement.querySelector('.miniSlider__wrapper'); // wrapper for .miniSlider-item
@@ -132,20 +133,32 @@ let multiItemSlider = (function () {
 		}
 
 
-		// create an array with elements of dots
-		function createArrOfDot(sliderItems, dotsTrue) {
-			if (dotsTrue) {
-				let dots = []; // array for slider dots
+		function getDots(sliderItems) {
+			let dotsArr = _mainElement.querySelectorAll('.miniSlider__dot');
+			if (sliderItems.length !== dotsArr.length) alert("the number of 'miniSlider__item' is not equal to 'miniSlider__dot'");
+			return dotsArr;
+		}
 
-				sliderItems.forEach((item, i) => {
-					let newDot = document.createElement('button'),
-						dotSpan = document.createElement('span');
-					newDot.classList.add('miniSlider__dot');
-					if (i === 0) newDot.classList.add('active');
-					newDot.appendChild(dotSpan);
-					dots[i] = newDot;
-				});
-				return dots;
+
+		// create an array with elements of dots
+		function createArrOfDot(config, sliderItems, dotsTrue) {
+			if (dotsTrue) {
+
+				if (config.dotsExist) return  getDots(sliderItems);
+				else {
+					let dots = []; // array for slider dots
+
+					sliderItems.forEach((item, i) => {
+						let newDot = document.createElement('button'),
+							dotSpan = document.createElement('span');
+						newDot.classList.add('miniSlider__dot');
+						dotSpan.classList.add(`dot${i}`);
+						if (i === 0) newDot.classList.add('active');
+						newDot.appendChild(dotSpan);
+						dots[i] = newDot;
+					});
+					return dots;
+				}
 			}
 		}
 
@@ -196,7 +209,7 @@ let multiItemSlider = (function () {
 
 
 		_items = createItemsArr(_sliderItems, _config.slidesCount);
-		_dots = createArrOfDot(_sliderItems, _config.dots);
+		_dots = createArrOfDot(_config, _sliderItems, _config.dots);
 
 		if (_ratioToMoveElems > 1) {  // if we need to move some items from the end of array, to the start of array
 			_items = arrPartitioning(_items, _elemsInWrap);
@@ -310,5 +323,7 @@ let multiItemSlider = (function () {
 }());
 
 let miniSlider = multiItemSlider('.miniSlider', {
-	isCycling: true
+	isCycling: true,
+	dots: true,
+	dotsExist: true
 });
