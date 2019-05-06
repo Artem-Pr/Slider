@@ -21,7 +21,7 @@ let multiItemSlider = (function () {
 				direction: 'right', // slider change direction
 				interval: 5000, // automatic slider change interval
 				pause: true, // set a pause when hovering the mouse over the slider
-				onlyDotsPause: false // set a pause only when hovering the mouse over the Dots
+				dotsPause: false // set a pause only when hovering the mouse over the Dots (need to set "pause: false")
 			};
 
 		for (let key in config) {
@@ -316,10 +316,10 @@ let multiItemSlider = (function () {
 					item.addEventListener('click', _dotClick);
 				});
 				_mainElement.querySelector('.miniSlider__dots').addEventListener('mouseenter', () => {
-					if (_config.pause) clearInterval(_timerId);
+					if (_config.dotsPause) clearInterval(_timerId);
 				});
 				_mainElement.querySelector('.miniSlider__dots').addEventListener('mouseleave', () => {
-					if (_config.pause) {
+					if (_config.dotsPause) {
 						clearInterval(_timerId);
 						_cycle(_config.isCycling, _config.direction, _config.interval);
 					}
@@ -336,5 +336,7 @@ let miniSlider = multiItemSlider('.miniSlider', {
 	isCycling: true,
 	dots: true,
 	dotsExist: true,
-	onlyDotsPause: true
+	interval: 500,
+	pause: false,
+	dotsPause: true
 });
