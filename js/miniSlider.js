@@ -14,13 +14,14 @@ let multiItemSlider = (function () {
 			_transform = 0, // value of transform .miniSlider__wrapper
 			_timerId = 0,
 			_config = {
+				slidesCount: 1, // slider duplication count
+				dots: false, // hide miniSlider__dots
+				dotsExist: false, //the points are already in html
 				isCycling: false, // automatic slider change
 				direction: 'right', // slider change direction
 				interval: 5000, // automatic slider change interval
 				pause: true, // set a pause when hovering the mouse over the slider
-				slidesCount: 1, // slider duplication count
-				dots: false, // hide miniSlider__dots
-				dotsExist: false //the points are already in html
+				onlyDotsPause: false // set a pause only when hovering the mouse over the Dots
 			};
 
 		for (let key in config) {
@@ -144,7 +145,7 @@ let multiItemSlider = (function () {
 		function createArrOfDot(config, sliderItems, dotsTrue) {
 			if (dotsTrue) {
 
-				if (config.dotsExist) return  getDots(sliderItems);
+				if (config.dotsExist) return getDots(sliderItems);
 				else {
 					let dots = []; // array for slider dots
 
@@ -277,7 +278,7 @@ let multiItemSlider = (function () {
 			while (active !== current) {
 				_transformItem(direction);
 				if (direction === 'right') active++;
-				else  active--;
+				else active--;
 			}
 		};
 
@@ -313,7 +314,16 @@ let multiItemSlider = (function () {
 			if (_config.dots) {
 				_dots.forEach((item) => {
 					item.addEventListener('click', _dotClick);
-				})
+				});
+				_mainElement.querySelector('.miniSlider__dots').addEventListener('mouseenter', () => {
+					if (_config.pause) clearInterval(_timerId);
+				});
+				_mainElement.querySelector('.miniSlider__dots').addEventListener('mouseleave', () => {
+					if (_config.pause) {
+						clearInterval(_timerId);
+						_cycle(_config.isCycling, _config.direction, _config.interval);
+					}
+				});
 			}
 		};
 
@@ -325,5 +335,6 @@ let multiItemSlider = (function () {
 let miniSlider = multiItemSlider('.miniSlider', {
 	isCycling: true,
 	dots: true,
-	dotsExist: true
+	dotsExist: true,
+	onlyDotsPause: true
 });
